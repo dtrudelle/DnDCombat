@@ -237,7 +237,9 @@ struct LoadEncounterSheet: View {
                             .buttonStyle(.borderless)
                             .help("Effacer")
                         }
+                        .contentShape(Rectangle())
                         .tag(ref.id)
+                        .onTapGesture(count: 2) { load(ref) }
                     }
                 }
                 .frame(minHeight: 240)
@@ -246,7 +248,7 @@ struct LoadEncounterSheet: View {
             HStack {
                 Spacer()
                 Button("Annuler") { dismiss() }
-                Button("Charger", action: load)
+                Button("Charger") { load() }
                     .buttonStyle(.borderedProminent)
                     .disabled(selected == nil)
             }
@@ -256,10 +258,18 @@ struct LoadEncounterSheet: View {
         .onAppear { store.refresh() }
     }
 
-    private func load() {
-        guard let id = selected,
-              let ref = store.saved.first(where: { $0.id == id }),
-              let file = try? store.load(ref) else { return }
+    /// Charge la rencontre `ref` si fournie (double-clic sur une ligne), sinon celle
+    /// actuellement sélectionnée (bouton « Charger »).
+    private func load(_ ref: EncounterStore.Ref? = nil) {
+        let target: EncounterStore.Ref?
+        if let ref {
+            target = ref
+        } else if let id = selected {
+            target = store.saved.first(where: { $0.id == id })
+        } else {
+            target = nil
+        }
+        guard let ref = target, let file = try? store.load(ref) else { return }
         for e in file.entries { library.add(e.block) }   // dispo dans la bibliothèque aussi
         enc.apply(file)
         dismiss()
