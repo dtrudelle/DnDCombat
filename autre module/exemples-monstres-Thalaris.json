@@ -1,0 +1,95 @@
+[
+  {
+    "id": "thal-loup-cendres",
+    "name": "Loup des cendres",
+    "size": "M",
+    "type": "bête",
+    "cr": 1,
+    "proficiencyBonus": 2,
+    "ac": 13,
+    "hp": { "average": 26, "formula": "4d10+4" },
+    "speed": { "walk": "40 ft" },
+    "abilities": { "FOR": 14, "DEX": 15, "CON": 13, "INT": 3, "SAG": 12, "CHA": 6 },
+    "saveProficiencies": [],
+    "traits": [
+      { "name": "Odorat aiguisé", "description": "Avantage aux tests de Sagesse (Perception) reposant sur l'odorat." }
+    ],
+    "attacks": [
+      {
+        "name": "Morsure",
+        "kind": "tohit",
+        "ability": "FOR",
+        "addAbilityToDamage": true,
+        "actionType": "action",
+        "reach": "5 ft",
+        "condition": "Prone",
+        "effect": "Si la cible est de taille G ou inférieure, elle a l'état Prone.",
+        "damage": [ { "dice": "2d6", "type": "piercing" } ]
+      }
+    ],
+    "attackOptions": [
+      { "type": "single", "attack": "Morsure" }
+    ]
+  },
+  {
+    "id": "thal-archonte-cendres",
+    "name": "Archonte de cendres",
+    "size": "G",
+    "type": "élémentaire",
+    "cr": 8,
+    "proficiencyBonus": 3,
+    "ac": 16,
+    "hp": { "average": 110, "formula": "13d10+39" },
+    "speed": { "walk": "30 ft", "fly": "60 ft" },
+    "abilities": { "FOR": 18, "DEX": 14, "CON": 18, "INT": 12, "SAG": 14, "CHA": 16 },
+    "saveProficiencies": [ "DEX", "CON", "SAG" ],
+    "damageResistances": [ "nonmagical bludgeoning, piercing, and slashing" ],
+    "damageImmunities": [ "fire", "poison" ],
+    "damageVulnerabilities": [ "cold" ],
+    "conditionImmunities": [ "Poisoned", "Exhaustion" ],
+    "traits": [
+      { "name": "Corps incandescent", "description": "Une créature qui touche l'archonte au corps à corps subit 1d6 dégâts de feu." },
+      { "name": "Embrasement (action légendaire)", "description": "À la fin du tour d'une autre créature, l'archonte inflige 1d6 feu à une créature à 9 m ou moins." }
+    ],
+    "attacks": [
+      {
+        "name": "Griffe ardente",
+        "kind": "tohit",
+        "ability": "FOR",
+        "addAbilityToDamage": true,
+        "actionType": "action",
+        "reach": "10 ft",
+        "condition": "Grappled",
+        "effect": "Si la cible est de taille G ou inférieure, elle a l'état Grappled (DD d'évasion 15).",
+        "damage": [ { "dice": "2d6", "type": "slashing" }, { "dice": "1d6", "type": "fire" } ]
+      },
+      {
+        "name": "Souffle de cendres",
+        "kind": "save",
+        "ability": "CON",
+        "actionType": "action",
+        "save": { "ability": "DEX" },
+        "area": "cône de 9 m",
+        "recharge": "5-6",
+        "halfOnSave": true,
+        "damage": [ { "dice": "6d6", "type": "fire" } ]
+      },
+      {
+        "name": "Regard calcinant",
+        "kind": "save",
+        "ability": "CHA",
+        "actionType": "action",
+        "save": { "ability": "SAG" },
+        "range": "18 m",
+        "condition": "Blinded",
+        "effect": "La cible a l'état Blinded jusqu'à la fin de son prochain tour."
+      }
+    ],
+    "attackOptions": [
+      { "type": "multiattack", "description": "Deux griffes ardentes",
+        "sequence": [ { "attack": "Griffe ardente", "count": 2 } ] },
+      { "type": "single", "attack": "Souffle de cendres" },
+      { "type": "single", "attack": "Regard calcinant" }
+    ]
+  }
+]
