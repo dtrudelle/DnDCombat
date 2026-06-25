@@ -145,6 +145,41 @@ enum InitiativeEntry: Identifiable {
         case .monsters(let g): return g.isDefeated
         }
     }
+
+    /// Valeur de départage sur la DEX en cas d'égalité d'initiative.
+    /// Pour un PJ, on utilise son bonus d'init (dérivé de la DEX en 5e) faute de
+    /// score de DEX stocké ; pour un groupe, le vrai modificateur de DEX du bloc.
+    var dexTiebreaker: Int {
+        switch self {
+        case .pc(let p):       return p.initBonus
+        case .monsters(let g): return g.initiativeModifier
+        }
+    }
+
+    /// Vrai pour un PJ : sert d'ultime départage (les PJ jouent avant les monstres).
+    var isPC: Bool {
+        switch self {
+        case .pc:       return true
+        case .monsters: return false
+        }
+    }
+
+    /// Comparateur d'ordre d'initiative à trois niveaux :
+    /// 1) initiative décroissante ; 2) modificateur de DEX décroissant ;
+    /// 3) à égalité totale, les PJ passent avant les monstres.
+    /// Renvoie `true` si `lhs` doit être joué avant `rhs`.
+    static func precedes(_ lhs: InitiativeEntry, _ rhs: InitiativeEntry) -> Bool {
+        if lhs.initiative != rhs.initiative {
+            return lhs.initiative > rhs.initiative
+        }
+        if lhs.dexTiebreaker != rhs.dexTiebreaker {
+            return lhs.dexTiebreaker > rhs.dexTiebreaker
+        }
+        if lhs.isPC != rhs.isPC {
+            return lhs.isPC   // PJ (true) avant monstre (false)
+        }
+        return false          // ordre stable conservé entre deux entrées équivalentes
+    }
 }
 
 // MARK: - Roster permanent (persistant sur disque)
@@ -210,7 +245,7 @@ final class Encounter {
     var mapImageData: Data?
     var gridColumns: Int = 34
     var gridRows: Int = 18
-    var showGrid: Bool = true   // affichage de la grille (vignette MJ + écran joueurs)
+    var showGrid: Bool = false   // affichage de la grille (vignette MJ + écran joueurs) — off par défaut
 
     // Trésor de la rencontre (pièces + butin libre)
     var treasure = Treasure()
@@ -286,9 +321,11 @@ final class Encounter {
             let g = MonsterGroup(block: block, count: n)
             g.initiative = roller.d20(.normal).chosen + g.initiativeModifier
             groups.append(g)
-            // L'ordre est trié par init décroissante : on insère avant la 1ʳᵉ entrée de plus faible init.
-            let i = order.firstIndex { $0.initiative < g.initiative } ?? order.count
-            order.insert(.monsters(g), at: i)
+            // L'ordre suit le même départage que `rebuildOrder` : on insère avant la
+            // 1ʳᵉ entrée que le nouveau groupe doit précéder (init, puis DEX, puis PJ).
+            let newEntry = InitiativeEntry.monsters(g)
+            let i = order.firstIndex { InitiativeEntry.precedes(newEntry, $0) } ?? order.count
+            order.insert(newEntry, at: i)
             addLog("Renfort", "\(g.displayName) entre en combat (init \(g.initiative))")
         }
     }
@@ -301,7 +338,7 @@ final class Encounter {
         name = "Sans titre"
         mapImageData = nil
         gridColumns = 34; gridRows = 18
-        showGrid = true
+        showGrid = false
         treasure = Treasure()
         showTreasureToPlayers = false
     }
@@ -351,7 +388,7 @@ final class Encounter {
 
     func rebuildOrder() {
         let entries = party.map { InitiativeEntry.pc($0) } + groups.map { InitiativeEntry.monsters($0) }
-        order = entries.sorted { $0.initiative > $1.initiative }
+        order = entries.sorted { InitiativeEntry.precedes($0, $1) }
     }
 
     /// Affecte l'entrée active et déclenche les effets de début de tour (recharges).

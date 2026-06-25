@@ -155,7 +155,7 @@ private struct HPBar: View {
         if inst.currentWounds <= 0 { return .white.opacity(0.25) }   // hors-combat
         if woundMode { return Self.woundRed }                         // 0 PV → wounds en rouge sombre
         switch fraction {                                             // mode PV
-        case ..<0.25: return .red                                     // PV critiques : rouge vif
+        case ..<0.2: return .red                                     // PV critiques : rouge vif
         case ..<0.5:  return .orange
         default:      return .green
         }
