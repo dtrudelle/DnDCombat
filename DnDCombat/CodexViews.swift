@@ -211,6 +211,17 @@ private struct CodexEntryEditor: View {
                 imageField
             }
 
+            Section {
+                Button {
+                    onToggle()
+                } label: {
+                    Label(isPushed ? "Retirer de l'écran joueur" : "Afficher aux joueurs",
+                          systemImage: isPushed ? "tv.slash" : "tv")
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(isPushed ? .red : .accentColor)
+            }
+
             Section("Informations publiques (visibles des joueurs)") {
                 TextEditor(text: $entry.publicInfo)
                     .frame(minHeight: 110)
@@ -223,17 +234,6 @@ private struct CodexEntryEditor: View {
                     .frame(minHeight: 110)
                     .overlay(RoundedRectangle(cornerRadius: 4).strokeBorder(.quaternary))
                     .onChange(of: entry.gmInfo) { _, _ in onSave() }
-            }
-
-            Section {
-                Button {
-                    onToggle()
-                } label: {
-                    Label(isPushed ? "Retirer de l'écran joueur" : "Afficher aux joueurs",
-                          systemImage: isPushed ? "tv.slash" : "tv")
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(isPushed ? .red : .accentColor)
             }
         }
         .formStyle(.grouped)
@@ -354,7 +354,7 @@ struct CodexOverlayView: View {
                 Image(nsImage: img)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: 640, maxHeight: 420)
+                    .frame(maxWidth: 960, maxHeight: 630)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
 
@@ -367,7 +367,7 @@ struct CodexOverlayView: View {
                     .font(.title3)
                     .foregroundStyle(.white.opacity(0.9))
                     .multilineTextAlignment(.center)
-                    .frame(maxWidth: 600)
+                    .frame(maxWidth: 900)
             }
         }
         .padding(32)
