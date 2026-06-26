@@ -7,6 +7,7 @@ import AppKit
 struct CodexSheet: View {
     @Environment(CodexLibrary.self) private var codex
     @Environment(CodexDisplayState.self) private var display
+    @Environment(CalendarDisplayState.self) private var calendarDisplay
     @Environment(Encounter.self) private var enc
     @Environment(\.dismiss) private var dismiss
 
@@ -158,7 +159,10 @@ struct CodexSheet: View {
                                   isPushed: display.isPushed(selectedID),
                                   onToggle: {
                                       display.toggle(selectedID)
-                                      if display.pushedID != nil { enc.showTreasureToPlayers = false }
+                                      if display.pushedID != nil {
+                                          enc.showTreasureToPlayers = false
+                                          calendarDisplay.hide()
+                                      }
                                   },
                                   onSave: { codex.save() })
             } else {
